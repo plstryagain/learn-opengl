@@ -1,0 +1,1 @@
+add_library(glad_obj OBJECT glad.c)
