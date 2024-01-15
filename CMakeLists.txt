@@ -17,15 +17,18 @@ endif (WIN32)
 
 
 include_directories(third-party/GLAD/include)
+include_directories(third-party/stb_image)
 
 add_subdirectory(src)
 add_subdirectory(third-party/GLAD/src)
+add_subdirectory(third-party/stb_image)
 
 
 add_executable(
     ${PROJECT_NAME}
     $<TARGET_OBJECTS:main_obj>
     $<TARGET_OBJECTS:glad_obj>
+    $<TARGET_OBJECTS:stb_image_obj>
 )
 
 if (WIN32)

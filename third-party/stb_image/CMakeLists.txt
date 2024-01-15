@@ -1,0 +1,1 @@
+add_library(stb_image_obj OBJECT stb_image.cpp)
