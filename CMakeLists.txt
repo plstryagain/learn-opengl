@@ -6,16 +6,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 if (WIN32)
-    # include_directories($ENV{GLM_ROOT})
     include_directories($ENV{GLFW_ROOT}\\include)
-    # message(STATUS "Using GLM: $ENV{GLM_ROOT} ")
-    message(STATUS "Using GLFW: $ENV{GLFW_ROOT} ")
-
+    message(STATUS "Using GLM: $ENV{GLM_ROOT} ")
 elseif (LINUX)
 
 endif (WIN32)
 
 
+include_directories($ENV{GLM_ROOT})
+message(STATUS "Using GLFW: $ENV{GLFW_ROOT} ")
 include_directories(third-party/GLAD/include)
 include_directories(third-party/stb_image)
 

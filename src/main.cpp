@@ -1,3 +1,4 @@
+#include "glm/ext/matrix_transform.hpp"
 #include "shader.h"
 
 #include <glad/glad.h>
@@ -8,6 +9,10 @@
 #include <vector>
 #include <filesystem>
 #include <fstream>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 inline static constexpr int32_t WIDTH = 1024;
 inline static constexpr int32_t HEIGHT = 768;
@@ -163,12 +168,15 @@ int main()
     glEnable(GL_BLEND);// you enable blending function
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
+    // glm::mat4 trans{1.0f};
+    // trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3{0.0f, 0.0f, 1.0f});
+    // trans = glm::scale(trans, glm::vec3{0.5f, 0.5f, 0.5f});
 
     Shader shader("assets/shaders/triangle.vert", "assets/shaders/triangle.frag");
     shader.Use();
     shader.setInteger("texture1", 0);
     shader.setInteger("texture2", 1);
+    // shader.setMatrix4("transform", trans);
 
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -176,6 +184,11 @@ int main()
 
         process_input(window);
 
+        glm::mat4 trans{1.0f};
+        trans = glm::translate(trans, glm::vec3{0.5f, -0.5f, 0.0f});
+        trans = glm::rotate(trans, static_cast<float>(glfwGetTime()), glm::vec3{0.0f, 0.0f, 1.0f});
+        trans = glm::scale(trans, glm::vec3{0.5f, 0.5f, 0.5f});
+        shader.setMatrix4("transform", trans);
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1_id);

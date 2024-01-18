@@ -6,6 +6,8 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <glm/glm.hpp>
+
 class Shader
 {
 public:
@@ -17,6 +19,7 @@ public:
     void setBool(std::string_view name, bool value) const;
     void setInteger(std::string_view name, int32_t value) const;
     void setFloat(std::string_view name, float value) const;
+    void setMatrix4(std::string_view name, const glm::mat4& value) const;
 
 private:
     std::string ReadShaderFile(const std::filesystem::path& file_path) const;

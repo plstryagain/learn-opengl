@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #include <stdexcept>
 
+#include <glm/gtc/type_ptr.hpp>
+
 Shader::Shader(const std::filesystem::path& vert_path, const std::filesystem::path& frag_path)
 {
     std::string vert_code = ReadShaderFile(vert_path);
@@ -54,6 +56,11 @@ void Shader::setInteger(std::string_view name, int32_t value) const
 void Shader::setFloat(std::string_view name, float value) const
 {
     glUniform1f(GetUniformLocation(name), value);
+}
+
+void Shader::setMatrix4(std::string_view name, const glm::mat4& value) const
+{
+    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
 std::string Shader::ReadShaderFile(const std::filesystem::path& file_path) const
