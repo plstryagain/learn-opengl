@@ -266,7 +266,7 @@ float vertices[] = {
         for (int i = 0; i < cube_positions.size(); ++i) {
             glm::mat4 model = glm::mat4{1.0f};
             model = glm::translate(model, cube_positions[i]);
-            float angle = 20.0f * i + 1;
+            float angle = (i == 0 ? 20.0f : 20.0f * i);
             model = glm::rotate(model, static_cast<float>(glfwGetTime()) * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             shader.setMatrix4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
