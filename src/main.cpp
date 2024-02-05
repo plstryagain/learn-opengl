@@ -1,5 +1,6 @@
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 #include "shader.h"
 
@@ -19,6 +20,13 @@
 inline static constexpr int32_t WIDTH = 1024;
 inline static constexpr int32_t HEIGHT = 768;
 
+glm::vec3 camera_pos{0.0f, 0.0f, 3.0f};
+glm::vec3 camera_front{0.0f, 0.0f, -1.0f};
+glm::vec3 camera_up{0.0f, 1.0f, 0.0f};
+
+float delta_time = 0.0f;
+float last_frame = 0.0f;
+
 static void framebuffer_size_callback(GLFWwindow* window, int32_t width, int32_t height)
 {
     (void)window;
@@ -27,13 +35,23 @@ static void framebuffer_size_callback(GLFWwindow* window, int32_t width, int32_t
 
 static void process_input(GLFWwindow* window)
 {
+    const float camera_speed = 2.5f * delta_time;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     } else if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
+    } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camera_pos += camera_speed * camera_front;
+    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera_pos -= camera_speed * camera_front;
+    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera_pos -= glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+    } 
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera_pos += glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+    } 
 }
 
 static std::vector<char> read_file(const std::filesystem::path& file_path)
@@ -243,6 +261,10 @@ float vertices[] = {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        float current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+
         process_input(window);
 
         
@@ -252,7 +274,18 @@ float vertices[] = {
         glBindTexture(GL_TEXTURE_2D, texture2_id);
 
         shader.Use();
-        glm::mat4 view = glm::mat4{1.0f};
+        // glm::vec3 camera_pos{0.0f, 0.0f, 3.0f};
+        // glm::vec3 camera_target{0.0f, 0.0f, 0.0f};
+        // glm::vec3 camera_direction = glm::normalize(camera_pos - camera_target);
+        // glm::vec3 up{0.0f, 1.0f, 0.0f};
+        // glm::vec3 camera_right = glm::normalize(glm::cross(up, camera_direction));
+        // glm::vec3 camera_up = glm::cross(camera_direction, camera_right);
+
+        // glm::mat4 view = glm::mat4{1.0f};
+        float radius = 20.0f;
+        float cam_x = sin(glfwGetTime()) * radius;
+        float cam_z = cos(glfwGetTime()) * radius;
+        glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glm::mat4 projection;
         projection = glm::perspective(glm::radians(45.0f), static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f);
