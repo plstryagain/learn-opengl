@@ -27,6 +27,16 @@ glm::vec3 camera_up{0.0f, 1.0f, 0.0f};
 float delta_time = 0.0f;
 float last_frame = 0.0f;
 
+float last_x = 400;
+float last_y = 300;
+
+float yaw = 0;
+float pitch = 0;
+
+bool first_mouse = true;
+
+float fov = 45.0f;
+
 static void framebuffer_size_callback(GLFWwindow* window, int32_t width, int32_t height)
 {
     (void)window;
@@ -91,6 +101,51 @@ static bool check_shader_compilation_status(uint32_t shader_id)
     return true;
 }
 
+static void mouse_callback(GLFWwindow* window, double x_pos, double y_pos)
+{
+    if (first_mouse) {
+        last_x = x_pos;
+        last_y = y_pos;
+        first_mouse = false;
+    }
+    float x_offset = x_pos - last_x;
+    float y_offset = last_y - y_pos;
+    last_x = x_pos;
+    last_y = y_pos;
+
+    const float sensitivity = 0.1f;
+    x_offset *= sensitivity;
+    y_offset *= sensitivity;
+
+    yaw += x_offset;
+    pitch += y_offset;
+
+    if (pitch > 89.0f) {
+        pitch = 89.0f;
+    }
+    if (pitch < -89.0f) {
+        pitch = -89.0f;
+    }
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camera_front = glm::normalize(direction);
+}
+
+void scroll_calback(GLFWwindow* window, double x_offset, double y_offset)
+{
+    fov -= static_cast<float>(y_offset);
+    if (fov < 1.0f) {
+        fov = 1.0f;
+    }
+    if (fov > 45.0f) {
+        fov = 45.0f;
+    }
+
+}
+
 int main()
 {
     glfwInit();
@@ -113,6 +168,9 @@ int main()
 
     glViewport(0, 0, WIDTH, HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_calback);
 
     // float vertices[] = {
     //     // positions                        // colors                   // texture coords
@@ -288,7 +346,7 @@ float vertices[] = {
         glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f);
         
         shader.setMatrix4("view", view);
         shader.setMatrix4("projection", projection);
